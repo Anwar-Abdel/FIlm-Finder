@@ -63,3 +63,20 @@ const server = app.listen(PORT, () => {
 });
 
 module.exports = server;
+
+
+//API RATED MOVIES REQUEST
+const fetch = require('node-fetch');
+
+const options = {
+  method: 'GET',
+  headers: {
+    accept: 'application/json',
+    Authorization: `Bearer ${process.env.API_TOKEN}`
+  }
+};
+
+fetch('https://api.themoviedb.org/3/account/21302657/rated/movies?language=en-US&page=1&sort_by=created_at.asc', options)
+  .then(response => response.json())
+  .then(response => console.log(response))
+  .catch(err => console.error(err));

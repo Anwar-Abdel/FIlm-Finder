@@ -9,7 +9,7 @@
     "dev": "nodemon"
   },
   "keywords": [],
-  "author": "",
+  "author": "Anwar Abdeljaber",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.2",
@@ -23,6 +23,7 @@
     "method-override": "^3.0.0",
     "mongodb": "^6.6.2",
     "mongoose": "^8.4.0",
+    "node-fetch": "^2.7.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0"
   }
