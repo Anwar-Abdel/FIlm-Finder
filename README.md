@@ -1,5 +1,5 @@
-# Favorite Movies collection (project 2)
-Project 2 for unit 2
+# Film Finder (project 2)
+Here, you can search for movies, add your favorites to your personal list, and remove them whenever you like. 
 
 # User Stories
 - Have the user signup and login
