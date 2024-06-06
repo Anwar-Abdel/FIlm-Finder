@@ -18,22 +18,30 @@
         </nav>
     </div>
     <div class="container">
-        <h2><%=data.title%></h2>
-        <p><%=data.overview%></p>
-        <p><%=data.release_date%></p>
-        <img src="https://image.tmdb.org/t/p/w500<%=data.poster_path%>" alt="<%=data.title%>">
-        <button onclick="addFavorite('<%=data.id%>')">Add to Favorites</button>
+        <% if (movies && movies.length > 0) { %>
+            <% movies.forEach(movie => { %>
+                <div class="movie">
+                    <h2><%= movie.title %></h2>
+                    <p><%= movie.overview %></p>
+                    <p><%= movie.release_date %></p>
+                    <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %>">
+                    <button onclick="addFavorite('<%= movie.id %>')">Add to Favorites</button>
 
-        <form action="/movies/add" method="POST">
-            <div class="input-box">
-                <input type="hidden"  name="<%=data.title %>">
-                <input type="hidden"  name="<%=data.overview %>">
-                <input type="hidden"  name="<%=data.release_date %>">
-                <input type="hidden"  name="<%=data.poster_path %>">
-            </div>
-            <input type="submit" value="Add to favorites" class="btn">
-        </form>
-
+                    <form action="/movies/add" method="POST">
+                        <div class="input-box">
+                            <input type="hidden" name="tmdb_id" value="<%= movie.id %>">
+                            <input type="hidden" name="title" value="<%= movie.title %>">
+                            <input type="hidden" name="overview" value="<%= movie.overview %>">
+                            <input type="hidden" name="release_date" value="<%= movie.release_date %>">
+                            <input type="hidden" name="poster_path" value="<%= movie.poster_path %>">
+                        </div>
+                        <input type="submit" value="Add to favorites" class="btn">
+                    </form>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No movies found.</p>
+        <% } %>
     </div>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>

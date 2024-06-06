@@ -8,7 +8,7 @@ const movieSchema = new mongoose.Schema({
     release_date: { type: Date, required: true },
     genres: [{ type: String, required: true }],
     poster_path: { type: String, required: true },
-    tmdb_id: { type: Number, required: true, unique: true },
+    tmdb_id: { type: String, required: true },
 }, { timestamps: true });
 
 const Movie = mongoose.model('Movie', movieSchema);

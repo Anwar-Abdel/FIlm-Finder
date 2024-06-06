@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/profile.css">
 </head>
 <body>
     <div class="header">
@@ -18,18 +18,18 @@
     <div class="container">
         <h1>Welcome, <%= user ? user.name : 'Guest' %>!</h1>
         <h2 class="heading">Your Favorite Movies</h2>
-        <div id="favoriteMovies">
-            <% if (favoriteMovies && favoriteMovies.length > 0) { %>
+        <% if (favoriteMovies && favoriteMovies.length > 0) { %>
+            <div class="movies-list">
                 <% favoriteMovies.forEach(movie => { %>
-                    <div class="movie">
-                        <img src="<%= movie.poster_path %>" alt="<%= movie.title %>">
+                    <div class="movie-item">
                         <h3><%= movie.title %></h3>
+                        <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %>">
                     </div>
-                <% }) %>
-            <% } else { %>
-                <p>No favorite movies found.</p>
-            <% } %>
-        </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p>You have no favorite movies.</p>
+        <% } %>
     </div>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>

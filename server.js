@@ -8,6 +8,7 @@ const authRouter = require('./controllers/auth');
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 const { searchMovie } = require('./api_calls/movieGet');
+const User = require('./models/user');
 const mongoose = require('mongoose');
 const Movie = require('./models/Movie');
 const axios = require('axios');
@@ -70,52 +71,55 @@ app.get('/movies/search', isLoggedIn, (req, res) => {
 
 //-----------API ROUTES-------------//
 app.get('/api/movies/search', isLoggedIn, async (req, res) => {
-    console.log(req.query)
-    const response = await axios.get('https://api.themoviedb.org/3/discover/movie',{ params: {
-        api_key: process.env.API_KEY,
-        query: req.query.query
-    }})
-    console.log(response.data.results[0].title);
+    console.log(req.query);
 
-    res.render('searchMovies', {data:response.data.results[0]})
+    let queries = req.query.query;
+    if (!Array.isArray(queries)) {
+        queries = [queries];
+    }
 
-    // axios.get(`${BASE_URL}/search/movie`, {
-    //     params: {
-    //         api_key: API_KEY,
-    //         query: query
-    //     }
-    // });
+    const results = [];
 
-    // const query = req.query.query;
-    // const movies = await searchMovie(query);
+    for (const query of queries) {
+        const response = await axios.get(`${BASE_URL}/search/movie`, {
+            params: {
+                api_key: API_KEY,
+                query: query
+            }
+        });
+        if (response.data.results && response.data.results.length > 0) {
+            results.push(response.data.results[0]);
+        }
+    }
 
-    // if (movies.length > 0) {
-    //     console.log(movies);
-    //     res.json(movies[0]);
-    // } else {
-    //     res.status(404).json({ error: 'Movie not found' });
-    // }
+    console.log(results);
+
+    res.render('searchMovies', { movies: results });
 });
 
 //------------POST ROUTES---------------//
 app.post('/movies/add', isLoggedIn, async (req, res) => {
-    const { movieId } = req.body;
-    console.log(req.body)
-    // try {
-    //     const user = await User.findById(req.user._id);
-    //     const movie = await Movie.findById(movieId);
+    const { tmdb_id, title, overview, release_date, poster_path } = req.body;
+    
+    try {
+        let movie = await Movie.findOne({ tmdb_id: tmdb_id });
+        if (!movie) {
+            movie = new Movie({ tmdb_id, title, overview, release_date, poster_path });
+            await movie.save();
+        }
 
-    //     if (movie) {
-    //         user.movies.addToSet(movie._id);
-    //         await user.save();
-    //         res.status(200).send('Movie added to favorites');
-    //     } else {
-    //         res.status(404).send('Movie not found');
-    //     }
-    // } catch (error) {
-    //     console.error('Failed to add movie:', error);
-    //     res.status(500).send('Failed to add movie');
-    // }
+        // Add the movie to the user's favorites
+        const user = await User.findById(req.user._id);
+        if (!user.movies.includes(movie._id)) {
+            user.movies.push(movie._id);
+            await user.save();
+        }
+
+        res.redirect('/profile');
+    } catch (error) {
+        console.error('Failed to add movie:', error);
+        res.status(500).send('Failed to add movie');
+    }
 });
 
 const server = app.listen(PORT, () => {
