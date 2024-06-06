@@ -1,82 +1,125 @@
 require('dotenv').config();
 const express = require('express');
-const app = express();
 const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('./config/passport-config');
 const isLoggedIn = require('./middleware/isLoggedIn');
+const authRouter = require('./controllers/auth');
+const API_KEY = process.env.API_KEY;
+const BASE_URL = 'https://api.themoviedb.org/3';
+const { searchMovie } = require('./api_calls/movieGet');
+const mongoose = require('mongoose');
+const Movie = require('./models/Movie');
+const axios = require('axios');
+
 const SECRET_SESSION = process.env.SECRET_SESSION;
 const PORT = process.env.PORT || 3000;
 
-// import model
-const { User } = require('./models');
+const app = express();
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 app.use(express.static(__dirname + '/public'));
+
 app.use(session({
     secret: SECRET_SESSION,
     resave: false,
     saveUninitialized: true
 }));
 app.use(flash());
-
-// initial passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// middleware for tracking users and alerts
 app.use((req, res, next) => {
     res.locals.alerts = req.flash();
     res.locals.currentUser = req.user;
-    next(); // going to said route
+    next();
 });
 
+//----------USE ROUTERS---------//
+app.use('/auth', authRouter);
+
+//-----------GET ROUTES-------------//
 app.get('/', (req, res) => {
-    res.render('home', {});
+    res.render('home');
 });
 
-// import auth routes
-app.use('/auth', require('./controllers/auth'));
-// app.use('/pokemon', require('./controllers/pokemon'));
-// app.use('/', require('./controllers/pokemon'));
+app.get('/profile', isLoggedIn, async (req, res) => {
+    const user = req.user;
 
-// --- AUTHENTICATED ROUTE: go to user profile page --- 
-app.get('/profile', isLoggedIn, (req, res) => {
-    const { name, email, phone } = req.user;
-    res.render('profile', { name, email, phone });
+    if (user) {
+        await user.populate('movies');
+        const favoriteMovies = user.movies;
+
+        res.render('profile', {
+            user: user,
+            favoriteMovies: favoriteMovies
+        });
+    } else {
+        res.render('profile', {
+            user: { name: "Guest" },
+            favoriteMovies: []
+        });
+    }
 });
 
-// any authenticated route will need to have isLoggedIn before controller
-// app.get('/pokemon', isLoggedIn, (req, res) => {
-//     // get data
-//     // render page + send data to page
-// });
+app.get('/movies/search', isLoggedIn, (req, res) => {
+    res.render('search2');
+});
 
-// app.get('/pokemon/:id/edit', isLoggedIn, (req, res) => {});
+//-----------API ROUTES-------------//
+app.get('/api/movies/search', isLoggedIn, async (req, res) => {
+    console.log(req.query)
+    const response = await axios.get('https://api.themoviedb.org/3/discover/movie',{ params: {
+        api_key: process.env.API_KEY,
+        query: req.query.query
+    }})
+    console.log(response.data.results[0].title);
 
-// app.delete('/pokemon/:id', isLoggedIn, (req, res) => {});
+    res.render('searchMovies', {data:response.data.results[0]})
 
+    // axios.get(`${BASE_URL}/search/movie`, {
+    //     params: {
+    //         api_key: API_KEY,
+    //         query: query
+    //     }
+    // });
+
+    // const query = req.query.query;
+    // const movies = await searchMovie(query);
+
+    // if (movies.length > 0) {
+    //     console.log(movies);
+    //     res.json(movies[0]);
+    // } else {
+    //     res.status(404).json({ error: 'Movie not found' });
+    // }
+});
+
+//------------POST ROUTES---------------//
+app.post('/movies/add', isLoggedIn, async (req, res) => {
+    const { movieId } = req.body;
+    console.log(req.body)
+    // try {
+    //     const user = await User.findById(req.user._id);
+    //     const movie = await Movie.findById(movieId);
+
+    //     if (movie) {
+    //         user.movies.addToSet(movie._id);
+    //         await user.save();
+    //         res.status(200).send('Movie added to favorites');
+    //     } else {
+    //         res.status(404).send('Movie not found');
+    //     }
+    // } catch (error) {
+    //     console.error('Failed to add movie:', error);
+    //     res.status(500).send('Failed to add movie');
+    // }
+});
 
 const server = app.listen(PORT, () => {
     console.log('🏎️ You are listening on PORT', PORT);
 });
 
 module.exports = server;
-
-
-//API RATED MOVIES REQUEST
-const fetch = require('node-fetch');
-
-const options = {
-  method: 'GET',
-  headers: {
-    accept: 'application/json',
-    Authorization: `Bearer ${process.env.API_TOKEN}`
-  }
-};
-
-fetch('https://api.themoviedb.org/3/account/21302657/rated/movies?language=en-US&page=1&sort_by=created_at.asc', options)
-  .then(response => response.json())
-  .then(response => console.log(response))
-  .catch(err => console.error(err));

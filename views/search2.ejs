@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to MovieApp</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
+
 <body>
     <div class="header">
         <div class="logo">Film Finder</div>
@@ -16,14 +18,17 @@
         </nav>
     </div>
     <div class="container">
-        <h1>Welcome to Film Finder!!</h1>
-        <p>The ultimate destination for all movie enthusiasts! 
-          Here, you can search for movies, add your favorites to your personal list, and remove them whenever you like. 
-          Explore a vast collection and keep track of what you love!!!</p>
-        <a href="/movies/search" class="btn">Search Movies</a>
+
+        <form action="/api/movies/search" method="GET">
+            <label for="query">Movie Title:</label>
+            <input type="text" id="query" name="query" required>
+            <button type="submit">Search</button>
+        </form>
+
     </div>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
-    
+
 </body>
+
 </html>

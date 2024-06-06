@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to MovieApp</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">Film Finder</div>
+        <nav class="navbar">
+            <a href="/" class="active">Home</a>
+            <a href="/profile">Profile</a>
+            <a href="/auth/login">Login</a>
+        </nav>
+    </div>
+    <div class="container">
+        <h2><%=data.title%></h2>
+        <p><%=data.overview%></p>
+        <p><%=data.release_date%></p>
+        <img src="https://image.tmdb.org/t/p/w500<%=data.poster_path%>" alt="<%=data.title%>">
+        <button onclick="addFavorite('<%=data.id%>')">Add to Favorites</button>
+
+        <form action="/movies/add" method="POST">
+            <div class="input-box">
+                <input type="hidden"  name="<%=data.title %>">
+                <input type="hidden"  name="<%=data.overview %>">
+                <input type="hidden"  name="<%=data.release_date %>">
+                <input type="hidden"  name="<%=data.poster_path %>">
+            </div>
+            <input type="submit" value="Add to favorites" class="btn">
+        </form>
+
+    </div>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

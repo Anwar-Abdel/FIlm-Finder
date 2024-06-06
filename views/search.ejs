@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Movies</title>
+    <link rel="stylesheet" href="/css/search.css">
+</head>
+<body>
+    <h1>Search Movies</h1>
+    <form id="searchForm">
+        <label for="query">Movie Title:</label>
+        <input type="text" id="query" name="query" required>
+        <button type="submit">Search</button>
+    </form>
+    <!-- Button to go back to the homepage -->
+    <button onclick="window.location.href='/'" style="margin-top: 20px;">Back to Homepage</button>
+    
+    <div id="movieDetails" style="margin-top: 20px;">
+        <!-- Movie details will be displayed here -->
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const query = document.getElementById('query').value;
+            fetch(`/api/movies/search?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const movieDetails = document.getElementById('movieDetails');
+                    movieDetails.innerHTML = `
+                        <h2>${data.title}</h2>
+                        <p>${data.overview}</p>
+                        <p>${data.release_date}</p>
+                        <img src="${data.poster_url}" alt="${data.title}">
+                        <button onclick="addFavorite('${data.id}')">Add to Favorites</button>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error fetching movie data:', error);
+                });
+        });
+
+        function addFavorite(movieId) {
+            fetch('/movies/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ movieId })
+            }).then(response => {
+                if (response.ok) {
+                    alert('Movie added to favorites');
+                } else {
+                    alert('Failed to add movie');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
