@@ -17,6 +17,5 @@ run().catch(console.dir);
 
 // export models
 module.exports = { 
-    User,
-
+    User
 }
