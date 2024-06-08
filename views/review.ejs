@@ -1,0 +1,46 @@
+<!-- review.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review - <%= movie.title %></title>
+    <link rel="stylesheet" href="/css/review.css">
+</head>
+<body>
+    <%- include('partials/header', { activePage: 'review' }) %>
+
+    <div class="container">
+        <h1><%= movie.title %></h1>
+        <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %> Poster" class="movie-poster">
+        
+        <h3>Review</h3>
+        <p id="review-content"><%= review.content %></p>
+        
+        <% if (review.user.toString() === currentUser._id.toString()) { %>
+            <div class="button-group">
+                <button id="edit-review-btn" class="btn">Edit Review</button>
+                <form id="edit-review-form" action="/movies/<%= movie.tmdb_id %>/review/<%= review._id %>?_method=PUT" method="POST" style="display:none;">
+                    <textarea name="review"><%= review.content %></textarea>
+                    <button type="submit" class="btn">Submit Changes</button>
+                </form>
+                <form action="/movies/<%= movie.tmdb_id %>/review/<%= review._id %>?_method=DELETE" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete Review</button>
+                </form>
+            </div>
+        <% } %>
+
+        <button onclick="window.history.back()" class="btn btn-secondary">Go Back</button>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        document.getElementById('edit-review-btn').addEventListener('click', function() {
+            document.getElementById('review-content').style.display = 'none';
+            document.getElementById('edit-review-form').style.display = 'block';
+            this.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

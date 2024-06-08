@@ -69,7 +69,6 @@ app.get('/movies/search', async (req, res) => {
             return res.render('searchMovies', { movies: [] });
         }
 
-        // Assuming you have a function to search for movies
         const movies = await searchMovie(query);
         res.render('searchMovies', { movies });
     } catch (err) {
@@ -109,24 +108,64 @@ app.get('/movies/:tmdb_id', async (req, res) => {
     }
 });
 
-//-----------POST ROUTES-------------//
-app.post('/movies/:id/review', isLoggedIn, async (req, res) => {
+app.get('/movies/:tmdb_id/review/:review_id', isLoggedIn, async (req, res) => {
     try {
-        const movieId = req.params.id;
-        const review = req.body.review;
+        const { tmdb_id, review_id } = req.params;
 
-        if (!mongoose.Types.ObjectId.isValid(movieId)) {
-            return res.status(400).send('Invalid movie ID');
+        const movie = await Movie.findOne({ tmdb_id: tmdb_id });
+        if (!movie) {
+            return res.status(404).send('Movie not found');
         }
 
-        const movie = await Movie.findById(movieId);
-        movie.review = review;
-        await movie.save();
+        const review = movie.reviews.id(review_id);
+        if (!review) {
+            return res.status(404).send('Review not found');
+        }
 
-        res.redirect(`/movies/${movie._id}`);
+        res.render('review', { movie, review });
     } catch (err) {
-        console.error('Error adding review:', err);
-        res.status(500).send('Error adding review');
+        console.error('Error fetching review:', err);
+        res.status(500).send('Error fetching review');
+    }
+});
+
+
+//-----------POST ROUTES-------------//
+app.post('/movies/:tmdb_id/review', isLoggedIn, async (req, res) => {
+    try {
+        const tmdbId = req.params.tmdb_id;
+        const reviewContent = req.body.review;
+
+        let movie = await Movie.findOne({ tmdb_id: tmdbId });
+
+        if (!movie) {
+            const response = await axios.get(`${BASE_URL}/movie/${tmdbId}`, {
+                params: { api_key: API_KEY }
+            });
+
+            const movieData = response.data;
+            movie = new Movie({
+                title: movieData.title,
+                overview: movieData.overview,
+                release_date: movieData.release_date,
+                genres: movieData.genres.map(genre => genre.name),
+                poster_path: movieData.poster_path,
+                tmdb_id: tmdbId
+            });
+
+            await movie.save();
+        }
+
+        movie.reviews.push({
+            user: req.user._id,
+            content: reviewContent
+        });
+
+        await movie.save();
+        res.redirect(`/movies/${tmdbId}/review/${movie.reviews[movie.reviews.length - 1]._id}`);
+    } catch (err) {
+        console.error('Error submitting review:', err);
+        res.status(500).send('Error submitting review');
     }
 });
 
@@ -135,7 +174,6 @@ app.post('/movies/:tmdb_id/favorite', isLoggedIn, async (req, res) => {
         const tmdbId = req.params.tmdb_id;
         const user = req.user;
 
-        // Find or create the movie in the database
         let movie = await Movie.findOne({ tmdb_id: tmdbId });
         if (!movie) {
             const response = await axios.get(`${BASE_URL}/movie/${tmdbId}`, {
@@ -155,11 +193,10 @@ app.post('/movies/:tmdb_id/favorite', isLoggedIn, async (req, res) => {
             await movie.save();
         }
 
-        // Add the movie to the user's favorites
         user.movies.push(movie._id);
         await user.save();
         res.redirect('/profile');
-        
+
     } catch (err) {
         console.error('Error adding movie to favorites:', err);
         req.flash('error', 'Error adding movie to favorites');
@@ -167,25 +204,46 @@ app.post('/movies/:tmdb_id/favorite', isLoggedIn, async (req, res) => {
     }
 });
 
-//------------DELETE ROUTES---------------//
-// DELETE route to delete a review
-app.delete('/movies/:id/review', async (req, res) => {
+//-----------PUT ROUTES-------------//
+app.put('/movies/:tmdb_id/review/:review_id', isLoggedIn, async (req, res) => {
     try {
-        const movieId = req.params.id;
+        const { tmdb_id, review_id } = req.params;
+        const { review } = req.body;
 
-        const movie = await Movie.findById(movieId);
-        movie.review = null;
-        await movie.save();
+        const movie = await Movie.findOneAndUpdate(
+            { tmdb_id, "reviews._id": review_id },
+            { "$set": { "reviews.$.content": review } },
+            { new: true }
+        );
 
-        res.redirect(`/movies/${movie._id}`);
+        res.redirect(`/movies/${tmdb_id}/review/${review_id}`);
+    } catch (err) {
+        console.error('Error updating review:', err);
+        res.status(500).send('Error updating review');
+    }
+});
+
+//------------DELETE ROUTES---------------//
+app.delete('/movies/:tmdb_id/review/:review_id', isLoggedIn, async (req, res) => {
+    try {
+        const { tmdb_id, review_id } = req.params;
+
+        const movie = await Movie.findOneAndUpdate(
+            { tmdb_id: tmdb_id },
+            { $pull: { reviews: { _id: review_id, user: req.user._id } } },
+            { new: true }
+        );
+        if (!movie) {
+            return res.status(404).send('Review not found or user not authorized');
+        }
+        res.redirect(`/movies/${tmdb_id}`);
     } catch (err) {
         console.error('Error deleting review:', err);
         res.status(500).send('Error deleting review');
     }
 });
 
-// DELETE route to remove a favorite movie
-app.delete('/movies/:id', async (req, res) => {
+app.delete('/movies/:id', isLoggedIn, async (req, res) => {
     try {
         const movieId = req.params.id;
 
@@ -200,7 +258,6 @@ app.delete('/movies/:id', async (req, res) => {
         res.status(500).send('Error deleting movie');
     }
 });
-
 
 const server = app.listen(PORT, () => {
     console.log('🏎️ You are listening on PORT', PORT);

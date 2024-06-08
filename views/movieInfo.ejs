@@ -16,17 +16,12 @@
         <p><strong>Release Date:</strong> <%= new Date(movie.release_date).toDateString() %></p>
         <p><strong>Overview:</strong> <%= movie.overview %></p>
         
-        <form action="/movies/<%= movie.tmdb_id %>/favorite" method="POST">
-            <button type="submit" class="btn">Add to favorites</button>
-        </form>
-        
-        <h3>Add a Review</h3>
         <form action="/movies/<%= movie.tmdb_id %>/review" method="POST">
             <textarea name="review" placeholder="Write your review here..."></textarea>
             <button type="submit" class="btn">Submit Review</button>
         </form>
 
-        <button onclick="window.history.back()" class="btn">Go Back</button>
+        <button onclick="window.history.back()" class="btn btn-secondary">Go Back</button>
     </div>
 
     <%- include('partials/footer') %>
