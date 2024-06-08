@@ -1,51 +1,48 @@
+<!-- searchMovies.ejs -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to MovieApp</title>
+    <title>Search Movies</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
-
 <body>
     <div class="header">
         <div class="logo">Film Finder</div>
         <nav class="navbar">
             <a href="/" class="active">Home</a>
             <a href="/profile">Profile</a>
-            <a href="/auth/login">Login</a>
+            <% if (currentUser) { %>
+                <a href="/auth/logout">Sign Out</a>
+            <% } else { %>
+                <a href="/auth/login">Login</a>
+            <% } %>
         </nav>
     </div>
-    <div class="container">
-        <% if (movies && movies.length > 0) { %>
-            <% movies.forEach(movie => { %>
-                <div class="movie">
-                    <h2><%= movie.title %></h2>
-                    <p><%= movie.overview %></p>
-                    <p><%= movie.release_date %></p>
-                    <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %>">
-                    <button onclick="addFavorite('<%= movie.id %>')">Add to Favorites</button>
 
-                    <form action="/movies/add" method="POST">
-                        <div class="input-box">
-                            <input type="hidden" name="tmdb_id" value="<%= movie.id %>">
-                            <input type="hidden" name="title" value="<%= movie.title %>">
-                            <input type="hidden" name="overview" value="<%= movie.overview %>">
-                            <input type="hidden" name="release_date" value="<%= movie.release_date %>">
-                            <input type="hidden" name="poster_path" value="<%= movie.poster_path %>">
-                        </div>
-                        <input type="submit" value="Add to favorites" class="btn">
+    <div class="container">
+        <h1>Search Movies</h1>
+        <form action="/movies/search" method="GET">
+            <input type="text" name="q" placeholder="Search for a movie...">
+            <button type="submit" class="btn">Search</button>
+        </form>
+
+        <div class="movie-list">
+            <% movies.slice(0, 10).forEach(movie => { %>
+                <div class="movie-item">
+                    <h3><%= movie.title %></h3>
+                    <a href="/movies/<%= movie.tmdb_id %>">
+                        <img src="<%= movie.poster_url %>" alt="<%= movie.title %> Poster" class="movie-poster">
+                    </a>
+                    <form action="/movies/<%= movie.tmdb_id %>/favorite" method="POST">
+                        <button type="submit" class="btn">Add to favorites</button>
                     </form>
                 </div>
-            <% }); %>
-        <% } else { %>
-            <p>No movies found.</p>
-        <% } %>
+            <% }) %>
+        </div>
     </div>
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/bootstrap.bundle.min.js"></script>
 
+    <%- include('partials/footer') %>
 </body>
-
 </html>

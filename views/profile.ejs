@@ -1,37 +1,57 @@
+<!-- profile.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>Profile - Film Finder</title>
     <link rel="stylesheet" href="/css/profile.css">
 </head>
 <body>
     <div class="header">
-        <div class="logo">Profile Page</div>
+        <div class="logo">Film Finder</div>
         <nav class="navbar">
-            <a href="/">Home</a>
-            <a href="/profile" class="active">Profile</a>
-            <a href="/logout">Logout</a>
+            <a href="/" class="active">Home</a>
+            <a href="/profile">Profile</a>
+            <% if (currentUser) { %>
+                <a href="/auth/logout">Sign Out</a>
+            <% } else { %>
+                <a href="/auth/login">Login</a>
+            <% } %>
         </nav>
     </div>
+
     <div class="container">
-        <h1>Welcome, <%= user ? user.name : 'Guest' %>!</h1>
-        <h2 class="heading">Your Favorite Movies</h2>
-        <% if (favoriteMovies && favoriteMovies.length > 0) { %>
-            <div class="movies-list">
-                <% favoriteMovies.forEach(movie => { %>
-                    <div class="movie-item">
-                        <h3><%= movie.title %></h3>
-                        <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %>">
-                    </div>
-                <% }); %>
-            </div>
-        <% } else { %>
-            <p>You have no favorite movies.</p>
+        <h1>Welcome, <%= user.name %></h1>
+        
+        <% if (alerts.error) { %>
+            <div class="alert alert-danger"><%= alerts.error %></div>
         <% } %>
+        <% if (alerts.success) { %>
+            <div class="alert alert-success"><%= alerts.success %></div>
+        <% } %>
+
+        <a href="/movies/search" class="btn">Search Movies</a>
+        
+        <h3>Your Favorite Movies</h3>
+        <div class="movie-list">
+            <% user.movies.forEach(movie => { %>
+                <div class="movie-item">
+                    <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %> Poster" class="movie-poster">
+                    <h3><%= movie.title %></h3>
+                    <div class="button-group">
+                        <a href="/movies/<%= movie.tmdb_id %>" class="info-button">Info</a>
+                        <form action="/movies/<%= movie._id %>?_method=DELETE" method="POST" style="display:inline;">
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
     </div>
+
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
+    <%- include('partials/footer') %>
 </body>
 </html>

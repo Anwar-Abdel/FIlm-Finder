@@ -12,7 +12,11 @@
         <nav class="navbar">
             <a href="/" class="active">Home</a>
             <a href="/profile">Profile</a>
-            <a href="/auth/login">Login</a>
+            <% if (currentUser) { %>
+                <a href="/auth/logout">Sign Out</a>
+            <% } else { %>
+                <a href="/auth/login">Login</a>
+            <% } %>
         </nav>
     </div>
     <div class="container">
@@ -20,10 +24,13 @@
         <p>The ultimate destination for all movie enthusiasts! 
           Here, you can search for movies, add your favorites to your personal list, and remove them whenever you like. 
           Explore a vast collection and keep track of what you love!!!</p>
-        <a href="/movies/search" class="btn">Search Movies</a>
+        <% if (currentUser) { %>
+            <a href="/movies/search" class="btn">Search Movies</a>
+        <% } else { %>
+            <a href="/auth/signup" class="btn">Get Started</a>
+        <% } %>
     </div>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
-    
 </body>
 </html>

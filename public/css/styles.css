@@ -586,3 +586,19 @@ p {
    color: black;
    font-size: 18px;
  }
+
+.movie-list {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: space-around;
+}
+
+.movie-item {
+   text-align: center;
+   margin: 10px;
+}
+
+.movie-poster {
+   width: 150px;
+   height: auto;
+}

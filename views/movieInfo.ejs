@@ -1,26 +1,34 @@
+<!-- movieInfo.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title><%= movie.title %></title>
     <link rel="stylesheet" href="/css/movieInfo.css">
 </head>
 <body>
+    <%- include('partials/header', { activePage: 'movieInfo' }) %>
+
     <div class="container">
-        <h1><%= title %></h1>
-        <img src="https://image.tmdb.org/t/p/w500<%= poster_path %>" alt="<%= title %>">
-        <p><%= description %></p>
-        <h2>Cast</h2>
-        <ul>
-            <% cast.forEach(actor => { %>
-                <li><%= actor.name %> as <%= actor.character %></li>
-            <% }); %>
-        </ul>
-        <h2>Ratings</h2>
-        <p><%= ratings %>/10</p>
+        <h1><%= movie.title %></h1>
+        <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %> Poster" class="movie-poster">
+        <p><strong>Release Date:</strong> <%= new Date(movie.release_date).toDateString() %></p>
+        <p><strong>Overview:</strong> <%= movie.overview %></p>
+        
+        <form action="/movies/<%= movie.tmdb_id %>/favorite" method="POST">
+            <button type="submit" class="btn">Add to favorites</button>
+        </form>
+        
+        <h3>Add a Review</h3>
+        <form action="/movies/<%= movie.tmdb_id %>/review" method="POST">
+            <textarea name="review" placeholder="Write your review here..."></textarea>
+            <button type="submit" class="btn">Submit Review</button>
+        </form>
+
+        <button onclick="window.history.back()" class="btn">Go Back</button>
     </div>
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <%- include('partials/footer') %>
 </body>
 </html>
