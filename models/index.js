@@ -1,6 +1,7 @@
 // models
 const User = require('./user');
-
+const Movie = require('./movie');
+const Review = require('./review');
 const mongoose = require('mongoose');
 const uri = process.env.MONGO_URI;
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
@@ -17,5 +18,5 @@ run().catch(console.dir);
 
 // export models
 module.exports = { 
-    User
+    User, Movie, Review
 }

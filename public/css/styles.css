@@ -26,6 +26,8 @@ html {
 body {
    background: var(--bg-color);
    color: var(--text-color);
+   padding-top: 70px;
+   padding-bottom: 70px;
 }
 
 section {
@@ -34,7 +36,7 @@ section {
 }
 
 .header {
-   position: fixed;
+  
    top: 0;
    left: 0;
    width: 100%;
@@ -372,7 +374,12 @@ span {
    flex-wrap: flex;
    padding: 2rem 9%;
    background-color: var(--second-bg-color);
+   position: fixed;
+   bottom: 0;
+   left: 0;
+   width: 100%;
 }
+
 
 .footer-text p {
    font-size: 1.6rem;

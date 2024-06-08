@@ -10,6 +10,7 @@ const authRouter = require('./controllers/auth');
 const { searchMovie } = require('./api_calls/movieGet');
 const User = require('./models/user');
 const Movie = require('./models/movie');
+const Review = require('./models/review');
 const API_KEY = process.env.API_KEY;
 const SECRET_SESSION = process.env.SECRET_SESSION;
 const PORT = process.env.PORT || 3000;
@@ -81,7 +82,7 @@ app.get('/movies/:tmdb_id', async (req, res) => {
     try {
         const tmdbId = req.params.tmdb_id;
 
-        let movie = await Movie.findOne({ tmdb_id: tmdbId });
+        let movie = await Movie.findOne({ tmdb_id: tmdbId }).populate('reviews');
 
         if (!movie) {
             const response = await axios.get(`${BASE_URL}/movie/${tmdbId}`, {
@@ -112,12 +113,12 @@ app.get('/movies/:tmdb_id/review/:review_id', isLoggedIn, async (req, res) => {
     try {
         const { tmdb_id, review_id } = req.params;
 
-        const movie = await Movie.findOne({ tmdb_id: tmdb_id });
+        const movie = await Movie.findOne({ tmdb_id }).populate('reviews');
         if (!movie) {
             return res.status(404).send('Movie not found');
         }
 
-        const review = movie.reviews.id(review_id);
+        const review = movie.reviews.find(review => review._id.toString() === review_id);
         if (!review) {
             return res.status(404).send('Review not found');
         }
@@ -130,6 +131,7 @@ app.get('/movies/:tmdb_id/review/:review_id', isLoggedIn, async (req, res) => {
 });
 
 
+
 //-----------POST ROUTES-------------//
 app.post('/movies/:tmdb_id/review', isLoggedIn, async (req, res) => {
     try {
@@ -139,6 +141,7 @@ app.post('/movies/:tmdb_id/review', isLoggedIn, async (req, res) => {
         let movie = await Movie.findOne({ tmdb_id: tmdbId });
 
         if (!movie) {
+        
             const response = await axios.get(`${BASE_URL}/movie/${tmdbId}`, {
                 params: { api_key: API_KEY }
             });
@@ -156,13 +159,20 @@ app.post('/movies/:tmdb_id/review', isLoggedIn, async (req, res) => {
             await movie.save();
         }
 
-        movie.reviews.push({
+        
+        const newReview = new Review({
             user: req.user._id,
-            content: reviewContent
+            content: reviewContent,
+            movie: movie._id 
         });
 
+        await newReview.save();
+
+        
+        movie.reviews.push(newReview._id);
         await movie.save();
-        res.redirect(`/movies/${tmdbId}/review/${movie.reviews[movie.reviews.length - 1]._id}`);
+
+        res.redirect(`/movies/${tmdbId}/review/${newReview._id}`);
     } catch (err) {
         console.error('Error submitting review:', err);
         res.status(500).send('Error submitting review');
@@ -227,21 +237,15 @@ app.put('/movies/:tmdb_id/review/:review_id', isLoggedIn, async (req, res) => {
 app.delete('/movies/:tmdb_id/review/:review_id', isLoggedIn, async (req, res) => {
     try {
         const { tmdb_id, review_id } = req.params;
+        await Review.findOneAndDelete({ _id: review_id, user: req.user._id });
 
-        const movie = await Movie.findOneAndUpdate(
-            { tmdb_id: tmdb_id },
-            { $pull: { reviews: { _id: review_id, user: req.user._id } } },
-            { new: true }
-        );
-        if (!movie) {
-            return res.status(404).send('Review not found or user not authorized');
-        }
         res.redirect(`/movies/${tmdb_id}`);
     } catch (err) {
         console.error('Error deleting review:', err);
         res.status(500).send('Error deleting review');
     }
 });
+
 
 app.delete('/movies/:id', isLoggedIn, async (req, res) => {
     try {

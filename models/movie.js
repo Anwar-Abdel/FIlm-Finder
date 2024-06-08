@@ -9,10 +9,9 @@ const movieSchema = new mongoose.Schema({
     poster_path: { type: String, required: true },
     tmdb_id: { type: String, required: true },
     reviews: [{
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        content: { type: String, required: true },
-        created_at: { type: Date, default: Date.now }
-    }]
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Review'
+        }]
 }, { timestamps: true });
 
 const Movie = mongoose.model('Movie', movieSchema);
