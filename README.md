@@ -21,6 +21,8 @@ Here, you can search for movies, add your favorites to your personal list, and r
 
 # Technologies used
 
+## API:
+- TMDB API
 ## Backend:
 - Node
 - Express
