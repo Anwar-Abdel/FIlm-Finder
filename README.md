@@ -47,7 +47,7 @@ id, firstName, lastName, email, password
 id, movieName, genre, releaseDate
 
 # Current issues
-- Some of the issues in this app is that the user is able to favorite the same movie (create a duplicate)
+- The user is able to favorite the same movie (create a duplicate)
 - The user can't see the review of the specific movie in their profile page
 
 # Future changes/considerations
