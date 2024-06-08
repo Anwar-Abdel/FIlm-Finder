@@ -45,6 +45,8 @@ Here, you can search for movies, add your favorites to your personal list, and r
 id, firstName, lastName, email, password
 ### movie
 id, movieName, genre, releaseDate
+### reviews
+id, content
 
 # Current issues
 - The user is able to favorite the same movie (create a duplicate)
