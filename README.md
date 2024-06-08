@@ -19,6 +19,24 @@ Here, you can search for movies, add your favorites to your personal list, and r
    `npm install passport-local`
    
 
+# Technologies used
+
+## Backend:
+- Node
+- Express
+- Passport
+- Bcrypt
+- dotenv
+- Mongoose
+- MongoDB
+- Method-override
+
+## Frontend:
+- HTML
+- CSS
+- EJS (Embedded JavaScript)
+- JavaScript
+
 # Wireframe
 ![wireframe](img/wireframe.png)
 
