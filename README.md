@@ -44,11 +44,11 @@ Here, you can search for movies, add your favorites to your personal list, and r
 
 # ERD
 ### User
-id, firstName, lastName, email, password
+id, name, phone, email, password
 ### movie
-id, movieName, genre, releaseDate
+id, title, overview, release_date, genres, poster_path
 ### reviews
-id, content
+id, user, date, created_at
 
 # Current issues
 - The user is able to favorite the same movie (create a duplicate)
