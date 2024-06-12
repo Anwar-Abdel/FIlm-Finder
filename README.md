@@ -10,15 +10,8 @@ Here, you can search for movies, add your favorites to your personal list, and r
 
 # Installation
 1. Git clone the repository
-2. In the command line run the following commands once you have the project opened in vs code:
-3. 
-   `npm init -y`
-   `npm install axios bcryptjs connect-flash`
-   `npm install dotenv ejs express`
-   `npm install express-ejs-layouts express-session method-override`
-   `npm install mongoose mongodb passport`
-   `npm install passport-local`
-   
+2. In the command line run the following commands once you have the project opened in vs code: 
+   `npm install`
 
 # Technologies used
 
