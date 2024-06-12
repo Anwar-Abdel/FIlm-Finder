@@ -1,4 +1,4 @@
-# Film Finder (project 2)
+# Film Finder
 Here, you can search for movies, add your favorites to your personal list, and remove them whenever you like. 
 
 # User Stories
