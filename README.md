@@ -109,12 +109,6 @@ module.exports = { searchMovie };
 
 ```
 
-## Frontend:
-- HTML
-- CSS
-- EJS (Embedded JavaScript)
-- JavaScript
-
 # Wireframe
 ![wireframe](img/wireframe.png)
 
